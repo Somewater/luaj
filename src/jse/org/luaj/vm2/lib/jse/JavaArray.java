@@ -48,11 +48,13 @@ class JavaArray extends LuaUserdata {
 	}
 
 	static final LuaValue LENGTH = valueOf("length");
+	private static final int ZERO_INDEX = 0; // "0" for zero-based index, "1" for one-based index
 	
 	static final LuaTable array_metatable;
 	static {
 		array_metatable = new LuaTable();
 		array_metatable.rawset(LuaValue.LEN, new LenFunction());
+		assert(ZERO_INDEX == 0 || ZERO_INDEX == 1);
 	}
 	
 	JavaArray(Object instance) {
@@ -64,9 +66,9 @@ class JavaArray extends LuaUserdata {
 		if ( key.equals(LENGTH) )
 			return valueOf(Array.getLength(m_instance));
 		if ( key.isint() ) {
-			int i = key.toint() - 1;
+			int i = key.toint() - ZERO_INDEX;
 			return i>=0 && i<Array.getLength(m_instance)?
-				CoerceJavaToLua.coerce(Array.get(m_instance,key.toint()-1)):
+				CoerceJavaToLua.coerce(Array.get(m_instance,key.toint()-ZERO_INDEX)):
 				NIL;
 		}
 		return super.get(key);
@@ -74,7 +76,7 @@ class JavaArray extends LuaUserdata {
 
 	public void set(LuaValue key, LuaValue value) {
 		if ( key.isint() ) {
-			int i = key.toint() - 1;
+			int i = key.toint() - ZERO_INDEX;
 			if ( i>=0 && i<Array.getLength(m_instance) )
 				Array.set(m_instance,i,CoerceLuaToJava.coerce(value, m_instance.getClass().getComponentType()));
 			else if ( m_metatable==null || ! settable(this,key,value) )
