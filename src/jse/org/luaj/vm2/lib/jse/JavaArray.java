@@ -48,6 +48,7 @@ class JavaArray extends LuaUserdata {
 	}
 
 	static final LuaValue LENGTH = valueOf("length");
+	static final LuaValue COUNT_LEN = valueOf("Count");
 	private static final int ZERO_INDEX = 0; // "0" for zero-based index, "1" for one-based index
 	
 	static final LuaTable array_metatable;
@@ -63,7 +64,7 @@ class JavaArray extends LuaUserdata {
 	}
 	
 	public LuaValue get(LuaValue key) {
-		if ( key.equals(LENGTH) )
+		if ( key.equals(LENGTH) || key.equals(COUNT_LEN))
 			return valueOf(Array.getLength(m_instance));
 		if ( key.isint() ) {
 			int i = key.toint() - ZERO_INDEX;
